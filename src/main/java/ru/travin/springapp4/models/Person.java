@@ -10,16 +10,16 @@ public class Person {
     private int id;
     @NotEmpty(message = "Имя не может быть пустым") // с помощью зависимости Hibernate validator указывает что поле name не может быть пустым
     @Size(min = 2,max = 30, message = "Введите количество символов от 2 до 30") // так же указываем минимальное и максимальное количество букв
-    private String names;
+    private String name;
     @Min(value = 0, message = "Возраст не может быть отрицательным или равен 0")
     private int age;
     @NotEmpty(message = "Email не может быть пустым")
     @Email(message = "Email должен быть валидным")
     private String email;
 
-    public Person(int id, String names, int age, String email) {
+    public Person(String name, int age, String email) {
         this.id = id;
-        this.names = names;
+        this.name = name;
         this.age = age;
         this.email = email;
     }
@@ -35,12 +35,12 @@ public class Person {
         this.id = id;
     }
 
-    public String getNames() {
-        return names;
+    public String getName() {
+        return name;
     }
 
-    public void setNames(String names) {
-        this.names = names;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {

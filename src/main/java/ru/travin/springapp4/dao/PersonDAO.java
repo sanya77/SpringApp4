@@ -1,13 +1,14 @@
 package ru.travin.springapp4.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.travin.springapp4.models.Person;
 
-import java.sql.*;
-import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,7 +131,7 @@ PersonDAO {
 //            throwables.printStackTrace();
 //        }
 
-        jdbcTemplate.update("INSERT INTO Person VALUES(1, ?, ?, ?)", person.getNames(), person.getAge(), person.getEmail());
+        jdbcTemplate.update("INSERT INTO Person(name, age, email) VALUES(?, ?, ?)",  person.getName(), person.getAge(), person.getEmail());
     }
 
     // метод обновления данных людей
@@ -153,7 +154,7 @@ PersonDAO {
 //        } catch (SQLException throwables) {
 //            throwables.printStackTrace();
 //        }
-        jdbcTemplate.update("UPDATE Person SET names=?, age=?, email=? WHERE id=?", updatePerson.getNames(), updatePerson.getAge(),
+        jdbcTemplate.update("UPDATE Person SET name=?, age=?, email=? WHERE id=?", updatePerson.getName(), updatePerson.getAge(),
                 updatePerson.getEmail(), id);
     }
 
@@ -173,4 +174,65 @@ PersonDAO {
 //    }
         jdbcTemplate.update("DELETE FROM Person WHERE id=?", id);
     }
+
+
+    /////////////////////////
+    //////// Тестируем производительность
+    ///////////////////////
+
+    public void testMultipleUpdate(){
+        List<Person> people = create1000People(); // вызываем метод, который будет генеририровать 1000 пользователей в БД
+
+        long before = System.currentTimeMillis(); // метод который начинает отсчет времени
+
+        // выполняем запрос в базу данных, сгенерировать 1000 пользователей
+        for (Person person : people) {
+            jdbcTemplate.update("INSERT INTO Person VALUES(?, ?, ?, ?)", person.getId(), person.getName(), person.getAge(), person.getEmail());
+        }
+
+
+        long after = System.currentTimeMillis(); // метод который заканчивает подсчет времени
+        System.out.println("Time: " + (after - before)); // выводим в консоль разницу во времени
+
+    }
+
+    public void testBatchUpdate(){
+        List<Person> people = create1000People();
+
+        long before = System.currentTimeMillis();
+
+        jdbcTemplate.batchUpdate("INSERT INTO Person VALUES(?, ?, ?, ?)",
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement preparedStatement, int i) throws SQLException {
+                    preparedStatement.setInt(1,people.get(i).getId());
+                    preparedStatement.setString(2,people.get(i).getName());
+                    preparedStatement.setInt(3,people.get(i).getAge());
+                    preparedStatement.setString(4,people.get(i).getEmail());
+
+
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return people.size();
+                    }
+                });
+        long after = System.currentTimeMillis();
+        System.out.println("Time: " + (after - before));
+    }
+
+    // метод создания 1000 пользователей
+    private List<Person> create1000People() {
+        List<Person> people = new ArrayList<>();
+
+        // проходим циклом for от 0 до 1000 и создаем пользователя
+        for ( int i = 0; i < 1000; i++){
+            people.add(new Person(" Name" + i, 30, "test" + i + "mail.ru"));// вызываем метод add для создания пользователя, выводим у него ИМЯ ВОЗРАСТ EMAIL
+        }
+        return people;
+    }
+
+
+
 }
