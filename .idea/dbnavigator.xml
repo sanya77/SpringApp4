@@ -2,7 +2,7 @@
 <project version="4">
   <component name="DBNavigator.Project.DataEditorManager">
     <record-view-column-sorting-type value="BY_INDEX" />
-    <value-preview-text-wrapping value="true" />
+    <value-preview-text-wrapping value="false" />
     <value-preview-pinned value="false" />
   </component>
   <component name="DBNavigator.Project.DatabaseBrowserManager">
@@ -54,7 +54,7 @@
           <tns-profile value="" />
           <type value="USER_PASSWORD" />
           <user value="postgres" />
-          <deprecated-pwd value="cG9zdGdyZXM=" />
+          <deprecated-pwd value="MQ==" />
         </database>
         <properties>
           <auto-commit value="false" />
